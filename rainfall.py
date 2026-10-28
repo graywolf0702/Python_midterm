@@ -20,7 +20,7 @@ API_URL = "https://opendata.cwa.gov.tw/api/v1/rest/datastore/C-B0025-001"
 STATIONS_URL = "https://hdps.cwa.gov.tw/static/state.html"
 API_KEY = os.environ.get("CWA_API_KEY", "CWA-E934DC66-4DE9-4BDC-8D3A-3065C92D0CDE")
 COUNTIES = {"臺北市", "新北市", "桃園市"}
-LIMIT = 20  # API 限制測站資料包；整理為逐日紀錄後再限制總共 20 筆。
+LIMIT = None # API 限制測站資料包。
 ROOT = Path(__file__).resolve().parent
 STATIONS_CACHE = ROOT / "cwa_stations.csv"
 STATION_FIELDS = ["stationid", "stationname", "county", "stationtype"]
@@ -80,14 +80,16 @@ def write_csv(path, fields, rows):
         writer.writerows(rows)
 
 
-def load_stations(session):
-    if STATIONS_CACHE.exists() and time.time() - STATIONS_CACHE.stat().st_mtime < 7 * 86400:
-        with STATIONS_CACHE.open(encoding="utf-8-sig", newline="") as file:
+def load_stations(session, counties=None, cache_path=None, log=print, refresh=False):
+    counties = COUNTIES if counties is None else set(counties)
+    cache_path = STATIONS_CACHE if cache_path is None else Path(cache_path)
+    if not refresh and cache_path.exists() and time.time() - cache_path.stat().st_mtime < 7 * 86400:
+        with cache_path.open(encoding="utf-8-sig", newline="") as file:
             reader = csv.DictReader(file)
             if not set(STATION_FIELDS).issubset(reader.fieldnames or []):
                 raise ValueError("站表快取欄位錯誤，請刪除 cwa_stations.csv 後重新執行。")
             stations = list(reader)
-        print("使用站表快取（不重複下載網頁）。")
+        log("使用站表快取（不重複下載網頁）。")
     else:
         with session.get(STATIONS_URL, timeout=60) as response:
             response.raise_for_status()
@@ -110,16 +112,16 @@ def load_stations(session):
             })
         if not stations:
             raise ValueError("站表沒有可用測站，不建立快取。")
-        write_csv(STATIONS_CACHE, STATION_FIELDS, stations)
-        print(f"站表已快取：{STATIONS_CACHE}")
+        write_csv(cache_path, STATION_FIELDS, stations)
+        log(f"站表已快取：{cache_path}")
 
-    selected = {row["stationid"]: row for row in stations if row["county"] in COUNTIES}
+    selected = {row["stationid"]: row for row in stations if row["county"] in counties}
     if not selected:
         raise ValueError("站表中沒有符合縣市的測站。")
     return selected
 
 
-def extract_rainfall(payload, stations, start, end):
+def extract_rainfall(payload, stations, start, end, limit=LIMIT):
     if str(payload.get("success")).lower() != "true":
         raise ValueError("氣象署 API 未成功回傳資料，請確認金鑰與查詢條件。")
     locations = payload.get("records", {}).get("location")
@@ -151,7 +153,7 @@ def extract_rainfall(payload, stations, start, end):
             }
     ordered = sorted(rows.values(), key=lambda row: (row["county"], row["stationid"]))
     ordered.sort(key=lambda row: row["monitordate"], reverse=True)
-    return ordered[:LIMIT], supported
+    return ordered[:limit], supported
 
 
 def main():
