@@ -1,11 +1,6 @@
 # 空氣與雨量資料下載
 
-安裝套件後啟動視窗：
-
-```powershell
-python -m pip install -r requirements.txt
-python main.py
-```
+# 點選 launch.pyw 開始使用
 
 視窗使用 Python 內建的 Tkinter，無需額外 GUI 套件。
 
