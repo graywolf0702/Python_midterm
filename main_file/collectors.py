@@ -7,12 +7,15 @@ import io
 import os
 from pathlib import Path
 import re
+import sys
 import time
 
 import requests
 import main_file.rainfall as rainfall
 
 ROOT = Path(__file__).resolve().parent
+APP_DIR = Path(sys.executable).resolve().parent if getattr(sys, "frozen", False) else ROOT.parent
+DEFAULT_OUTPUT_DIR = APP_DIR / "export"
 PM25_KEY = os.environ.get("MOENV_API_KEY", "7f824e08-5251-4ab2-b2c2-5ac8dced4615")
 CWA_KEY = rainfall.API_KEY
 COUNTIES = (
@@ -65,7 +68,7 @@ class DownloadOptions:
     end_date: str = ""
     limit: int | None = None
     counties: tuple = ("臺北市", "新北市", "桃園市")
-    output_dir: Path = ROOT
+    output_dir: Path = DEFAULT_OUTPUT_DIR
     pm25_key: str = PM25_KEY
     cwa_key: str = CWA_KEY
     station_ids: str = ""

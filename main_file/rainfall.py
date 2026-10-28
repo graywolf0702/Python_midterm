@@ -22,7 +22,9 @@ API_KEY = os.environ.get("CWA_API_KEY", "CWA-E934DC66-4DE9-4BDC-8D3A-3065C92D0CD
 COUNTIES = {"臺北市", "新北市", "桃園市"}
 LIMIT = None # API 限制測站資料包。
 ROOT = Path(__file__).resolve().parent
-STATIONS_CACHE = ROOT / "cwa_stations.csv"
+APP_DIR = Path(sys.executable).resolve().parent if getattr(sys, "frozen", False) else ROOT.parent
+DEFAULT_OUTPUT_DIR = APP_DIR / "export"
+STATIONS_CACHE = DEFAULT_OUTPUT_DIR / "cwa_stations.csv"
 STATION_FIELDS = ["stationid", "stationname", "county", "stationtype"]
 RAIN_FIELDS = ["stationid", "stationname", "county", "monitordate", "precipitation", "unit"]
 
@@ -112,6 +114,7 @@ def load_stations(session, counties=None, cache_path=None, log=print, refresh=Fa
             })
         if not stations:
             raise ValueError("站表沒有可用測站，不建立快取。")
+        cache_path.parent.mkdir(parents=True, exist_ok=True)
         write_csv(cache_path, STATION_FIELDS, stations)
         log(f"站表已快取：{cache_path}")
 
@@ -184,7 +187,8 @@ def main():
 
     if not rows:
         raise ValueError("查詢區間沒有雨量資料，未建立或覆寫 CSV。")
-    output = ROOT / f"rainfall_{start}_to_{end}_exclusive.csv"
+    DEFAULT_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    output = DEFAULT_OUTPUT_DIR / f"rainfall_{start}_to_{end}_exclusive.csv"
     write_csv(output, RAIN_FIELDS, rows)
     print(f"查詢區間：{start}（含）至 {end}（不含）")
     print(f"縣市站表 {len(stations)} 站，本次 API 回傳其中 {len(supported)} 站。")

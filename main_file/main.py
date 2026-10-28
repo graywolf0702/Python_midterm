@@ -3,7 +3,7 @@
 import argparse
 from pathlib import Path
 
-from main_file.collectors import DownloadOptions, ROOT, download_pm25, download_rainfall, error_message, yesterday
+from main_file.collectors import DownloadOptions, DEFAULT_OUTPUT_DIR, download_pm25, download_rainfall, error_message, yesterday
 
 
 def main():
@@ -14,7 +14,7 @@ def main():
     parser.add_argument("--limit", type=int, default=None, help="每類資料的總筆數上限；省略則使用 API 預設")
     parser.add_argument("--end", default=yesterday(), help="結束日期（含當天），YYYY-MM-DD")
     parser.add_argument("--counties", default="臺北市,新北市,桃園市")
-    parser.add_argument("--output", type=Path, default=ROOT)
+    parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT_DIR, help="預設為程式所在位置下的 export 資料夾")
     parser.add_argument("--station-ids", default="")
     args = parser.parse_args()
     if not args.cli:

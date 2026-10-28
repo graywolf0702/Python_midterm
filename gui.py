@@ -9,7 +9,7 @@ import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
 from main_file.collectors import (
-    COUNTIES, CWA_KEY, PM25_KEY, ROOT, DownloadOptions, date_window,
+    APP_DIR, COUNTIES, CWA_KEY, PM25_KEY, DEFAULT_OUTPUT_DIR, DownloadOptions, date_window,
     download_pm25, download_rainfall, error_message, parse_limit, yesterday,
 )
 
@@ -34,13 +34,12 @@ class DownloadApp(tk.Tk):
         self.days = tk.StringVar(value="30")
         self.end_date = tk.StringVar(value=yesterday())
         self.limit = tk.StringVar(value="")
-        self.output = tk.StringVar(value=str(ROOT))
+        self.output = tk.StringVar(value=str(DEFAULT_OUTPUT_DIR))
         self.station_ids = tk.StringVar()
         self.pm_key = tk.StringVar(value=PM25_KEY)
         self.cwa_key = tk.StringVar(value=CWA_KEY)
         self.compatibility = tk.BooleanVar(value=True)
         self.refresh_stations = tk.BooleanVar(value=False)
-        self.show_keys = tk.BooleanVar(value=False)
         self.status = tk.StringVar(value="準備就緒")
         self.range_label = tk.StringVar()
         self.pm_count = tk.StringVar(value="—")
@@ -198,14 +197,12 @@ class DownloadApp(tk.Tk):
 
     def _key_form(self, frame):
         ttk.Label(frame, text="API 金鑰", style="Title.TLabel").pack(anchor="w")
-        ttk.Label(frame, text="已帶入目前使用的金鑰，可在此更換。", wraplength=280, style="Muted.TLabel").pack(anchor="w", pady=(5, 18))
         self.key_entries = []
         for title, var in (("環境部（PM2.5）", self.pm_key), ("氣象署（每日雨量）", self.cwa_key)):
             ttk.Label(frame, text=title).pack(anchor="w")
             entry = ttk.Entry(frame, textvariable=var, show="●")
             entry.pack(fill="x", pady=(6, 16))
             self.key_entries.append(entry)
-        ttk.Checkbutton(frame, text="顯示金鑰", variable=self.show_keys, command=self.toggle_keys).pack(anchor="w")
         ttk.Separator(frame).pack(fill="x", pady=20)
         ttk.Checkbutton(frame, text="憑證格式相容處理", variable=self.compatibility).pack(anchor="w")
         ttk.Label(frame, text="處理目前遇到的憑證格式問題，仍保留憑證信任、效期與網域驗證。僅套用於資料來源網站。",
@@ -232,13 +229,13 @@ class DownloadApp(tk.Tk):
         self.county_list.see(0)
 
     def choose_folder(self):
-        selected = filedialog.askdirectory(parent=self, title="選擇 CSV 儲存資料夾")
+        current = Path(self.output.get().strip()).expanduser()
+        selected = filedialog.askdirectory(
+            parent=self, title="選擇 CSV 儲存資料夾",
+            initialdir=str(current if current.is_dir() else APP_DIR), mustexist=False,
+        )
         if selected:
             self.output.set(selected)
-
-    def toggle_keys(self):
-        for entry in self.key_entries:
-            entry.configure(show="" if self.show_keys.get() else "●")
 
     def open_folder(self):
         self._open_path(Path(self.output.get().strip()).expanduser())
