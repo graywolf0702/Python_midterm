@@ -3,9 +3,12 @@
 安裝套件後啟動視窗：
 
 ```powershell
+python -m pip install -r requirements.txt
 python launch.pyw
 ```
 或直接開啟launch.pyw
+
+`requirements.txt` 是套件清單，不能雙擊或使用 `python requirements.txt` 執行。請在專案主資料夾使用上面的 pip 指令；
 
 視窗使用 Python 內建的 Tkinter，無需額外 GUI 套件。
 
@@ -32,9 +35,9 @@ python launch.pyw
 ## 命令列
 
 ```powershell
-python main.py --cli --source both --days 30 --limit 20
-python main.py --cli --source rainfall --station-ids 466920,467050 --counties 臺北市,桃園市
-python -m unittest -v test_collectors.py
+python -m main_file.main --cli --source both --days 30 --limit 20
+python -m main_file.main --cli --source rainfall --station-ids 466920,467050 --counties 臺北市,桃園市
+python -m unittest -v main_file.test_collectors
 ```
 
 官方資料來源：[PM2.5 日均值](https://data.moenv.gov.tw/dataset/detail/AQX_P_322)、[每日雨量](https://opendata.cwa.gov.tw/dataset/climate/C-B0025-001)、[現存測站表](https://hdps.cwa.gov.tw/static/state.html#existing_station)。
