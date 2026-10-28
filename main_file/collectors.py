@@ -10,7 +10,7 @@ import re
 import time
 
 import requests
-import rainfall
+import main_file.rainfall as rainfall
 
 ROOT = Path(__file__).resolve().parent
 PM25_KEY = os.environ.get("MOENV_API_KEY", "7f824e08-5251-4ab2-b2c2-5ac8dced4615")

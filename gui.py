@@ -8,7 +8,7 @@ import time
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
-from collectors import (
+from main_file.collectors import (
     COUNTIES, CWA_KEY, PM25_KEY, ROOT, DownloadOptions, date_window,
     download_pm25, download_rainfall, error_message, parse_limit, yesterday,
 )

@@ -3,7 +3,7 @@
 import argparse
 from pathlib import Path
 
-from collectors import DownloadOptions, ROOT, download_pm25, download_rainfall, error_message, yesterday
+from main_file.collectors import DownloadOptions, ROOT, download_pm25, download_rainfall, error_message, yesterday
 
 
 def main():
@@ -18,7 +18,7 @@ def main():
     parser.add_argument("--station-ids", default="")
     args = parser.parse_args()
     if not args.cli:
-        from gui import launch
+        from main_file.gui import launch
         launch()
         return 0
     try:

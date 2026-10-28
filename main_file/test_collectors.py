@@ -9,7 +9,7 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 import requests
-import collectors as c
+import main_file.collectors as c
 
 
 class CollectorTests(unittest.TestCase):
@@ -147,7 +147,7 @@ class CollectorTests(unittest.TestCase):
         self.assertNotIn("secret", message)
 
     def test_gui_worker_keeps_success_if_other_source_fails(self):
-        from gui import DownloadApp
+        from main_file.gui import DownloadApp
         harness = MagicMock()
         harness.messages = queue.Queue()
         result = c.DownloadResult("PM2.5", Path("result.csv"), [{}], "done")
