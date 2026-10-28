@@ -18,7 +18,7 @@ def main():
     parser.add_argument("--station-ids", default="")
     args = parser.parse_args()
     if not args.cli:
-        from main_file.gui import launch
+        from gui import launch
         launch()
         return 0
     try:
