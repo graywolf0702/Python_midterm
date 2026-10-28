@@ -3,9 +3,9 @@
 安裝套件後啟動視窗：
 
 ```powershell
-python -m pip install -r requirements.txt
 python launch.pyw
 ```
+或直接開啟launch.pyw
 
 視窗使用 Python 內建的 Tkinter，無需額外 GUI 套件。
 
